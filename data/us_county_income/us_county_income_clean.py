@@ -418,7 +418,7 @@ us_no_wisc = usva[usva.STATEFP!='55']
 
 us = pandas.concat([merged_gdf, us_no_wisc])
 
-for y in range(1969, 2018):
+for y in years:
     print(us[str(y)].dtype)
 
 
@@ -449,7 +449,7 @@ csv = csv.replace('(NA)', 0)
 cibola = csv[csv.GeoName.str.startswith('Cibola')]
 valencia = csv[csv.GeoName.str.startswith('Valencia')]
 
-years = [ str(y) for y in range(1969, 2018)]
+years = [ str(y) for y in years]
 
 combined = cibola.copy()
 cibola[years] = cibola[years].astype(int)
