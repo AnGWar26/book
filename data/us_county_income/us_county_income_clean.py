@@ -374,7 +374,7 @@ drop_ids = menominee.index.to_list() + shawano.index.to_list()
 csv = csv.drop(drop_ids)
 csv[years] = csv[years].astype(int)
 
-for year in range(1969,2018):
+for year in years:
     print(csv[str(year)].dtype)
     
 # ## Dissolve shawano and menominee geometries in gdf
@@ -384,7 +384,6 @@ for year in range(1969,2018):
 
 
 gdf = geopandas.read_file("tl_2019_us_county.shp")
-
 wisconsin_gdf = gdf[gdf.STATEFP=="55"]
 
 combined = wisconsin_gdf[wisconsin_gdf.COUNTYFP.isin(['115', '078'])].dissolve(by='STATEFP')
@@ -392,16 +391,14 @@ combined['NAME'] = "Shawano+Menominee"
 combined['NAMELSAD'] = "Shawano+Menominee Counties"
 combined['GEOID'] = '55901'
 
-wisc0 = wisconsin_gdf[~wisconsin_gdf.COUNTYFP.isin(['115', '078'])]
+wisc0 = wisconsin_gdf[~wisconsin_gdf.COUNTYFP.isin(['115', '078'])] # codes for Shawano & Menominee
 wisc1 = pandas.concat([wisc0, combined])
 
 # ## Merge gdf and csv
 
 csv['GeoFIPS'] = [fip.strip().replace("\"", "") for fip in csv.GeoFIPS]
-
 wisc1.STATEFP='55'
 data = csv
-
 data['GEOID'] = data.GeoFIPS
 
 # ## gdf records missing income values
@@ -449,8 +446,6 @@ csv = csv.replace('(NA)', 0)
 cibola = csv[csv.GeoName.str.startswith('Cibola')]
 valencia = csv[csv.GeoName.str.startswith('Valencia')]
 
-years = [ str(y) for y in years]
-
 combined = cibola.copy()
 cibola[years] = cibola[years].astype(int)
 valencia[years] = valencia[years].astype(int)
@@ -474,7 +469,8 @@ for c,y in zip(cindex,years):
 
 # ## Drop Cibola and Valencia and Update Combined Fields
 
-csv = csv.drop([12, 13, 14, 99, 100, 101])
+drop_ids = cibola.index.to_list() + valencia.index.to_list()
+csv = csv.drop(drop_ids)
 combined['GeoName'] = 'Cibola+Valencia'
 combined['GeoFIPS'] = '"35061"'
 combined = combined[csv.columns]
@@ -511,10 +507,10 @@ us1 = pandas.concat([us[us.STATEFP!='35'], merged_gdf])
 
 csv = pandas.read_csv('04.csv')
 csv = csv.replace('(NA)', 0)
-la_paz = csv.iloc[[21, 22, 23]]
-yuma = csv.iloc[[45, 46, 47]]
+
+la_paz = csv[csv.GeoName.str.startswith('La Paz')]
+yuma = csv[csv.GeoName.str.startswith('Yuma')]
 combined = yuma.copy()
-years = [str(y) for y in range(1969, 2018)]
 la_paz[years] = la_paz[years].astype(int)
 yuma[years] = yuma[years].astype(int)
 combined[years] = combined[years].astype(int)
@@ -529,7 +525,8 @@ for c,y in zip(cindex,years):
     combined.iloc[1,c] = la_paz.iloc[1,c] + yuma.iloc[1,c]
     combined.iloc[2,c] = int(combined.iloc[0,c]*1000/ combined.iloc[1,c])
 
-csv = csv.drop([21, 22, 23, 45, 46, 47])
+drop_ids = la_paz.index.to_list() + yuma.index.to_list()
+csv = csv.drop(drop_ids)
 combined['GeoName'] = 'Yuma+La Paz'
 combined['GeoFIPS'] = '"04027"'
 combined['STATEFP'] = 4
@@ -568,10 +565,9 @@ us2[us2.STATEFP=='04'].shape
 csv = pandas.read_csv('08.csv')
 
 csv = csv.replace('(NA)', 0)
-boulder = csv.iloc[[21, 22, 23]]
-broomfield = csv.iloc[[24, 25, 26]]
+boulder = csv[csv.GeoName.str.startswith('Boulder')]
+broomfield = csv[csv.GeoName.str.startswith('Broom')]
 combined = boulder.copy()
-years = [str(y) for y in range(1989, 2018)]
 boulder[years] = boulder[years].astype(int)
 broomfield[years] = broomfield[years].astype(int)
 combined[years] = combined[years].astype(int)
@@ -587,8 +583,8 @@ for c,y in zip(cindex,years):
     combined.iloc[1,c] = boulder.iloc[1,c] + broomfield.iloc[1,c]
     combined.iloc[2,c] = int(combined.iloc[0,c]*1000/ combined.iloc[1,c])
     
-csv = csv.drop([21, 22, 23, 24, 25, 26])
-years = [str(y) for y in range(1969, 2018)]
+drop_ids = boulder.index.to_list() + broomfield.index.to_list()
+csv = csv.drop(drop_ids)
 csv[years] = csv[years].astype(int)
 
 combined['GeoName'] = 'Boulder+Broomfield'
@@ -615,14 +611,12 @@ data['GEOID'] = data.GeoFIPS
 
 merged = co1.merge(data, on='GEOID')
 merged['STATEFP'] = '08'
-merged[merged.NAME.str.startswith('Bould')]['STATEFP']
 
 us3 = pandas.concat([us2[us2.STATEFP!='08'], merged])
 columns = us3.columns.values.tolist()
 us4 = us3.drop(columns=['Unnamed: 0', 'Unnamed_ 0', 'IndustryCl'])
 
-for year in range(1969, 2018):
-    year = str(year)
+for year in years:
     us4[year] = us4[year].astype('int')
 
 us4.to_file('usincome_final.shp')
