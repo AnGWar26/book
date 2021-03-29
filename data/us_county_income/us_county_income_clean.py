@@ -359,14 +359,14 @@ for c,y in zip(cindex,years):
     #print(combined[y].dtype)
     combined.iloc[0,c] = menominee.iloc[0,c] + shawano.iloc[0,c]
     try:
-        combined.iloc[2,c] = int(combined.iloc[0,c]*1000/ combined.iloc[1,c])
+        combined.iloc[2,c] = int(combined.iloc[0,c]*1000/ combined.iloc[1,c]) # creates a float NaN on the 3rd value
     except ValueError:
         combined.iloc[2,c] = combined.iloc[0,c]*1000/ combined.iloc[1,c]
     csv.iloc[combined.index[0],c] = combined.iloc[0,c]
     csv.iloc[combined.index[1],c] = combined.iloc[1,c]
     csv.iloc[combined.index[2],c] = combined.iloc[2,c]
 
-csv.fillna(0,inplace=True)
+csv.fillna(0,inplace=True) # get rid of float NaNs
 
 # ## Drop shawano and menomiee from csv
 
