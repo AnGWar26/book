@@ -25,7 +25,7 @@ html: sync
 	cp notebooks/references.bib tmp_book/notebooks/
 	cp -r data tmp_book/data
 	cp -r figures tmp_book/figures
-	cp infrastructure/website_content/* tmp_book/
+	cp -r infrastructure/website_content/* tmp_book/
 	cp infrastructure/logo/ico_256x256.png tmp_book/logo.png
 	cp infrastructure/logo/favicon.ico tmp_book/favicon.ico
 	echo "Starting book build..."
@@ -55,6 +55,7 @@ test:
                       --execute \
                       --output-dir=tests \
                       --ExecutePreprocessor.timeout=600 \
+                      --ExecutePreprocessor.ipython_hist_file='' \
                       notebooks/*.ipynb 
 
 	rm -rf tests
